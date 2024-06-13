@@ -3,11 +3,11 @@
         <table>
             <thead>
                 <tr>
-                    <th>Employee</th>
-                    <th>Total Days</th>
-                    <th>Taken Days</th>
-                    <th>Planned Days</th>
-                    <th>Leftover Days</th>
+                    <th class="name">Teammitglied</th>
+                    <th class="stats">Summe</th>
+                    <th class="stats">Genom-men</th>
+                    <th class="stats">Geplant</th>
+                    <th class="stats">Übrig</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,8 +24,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
 
 const props = defineProps({
     teamData: Array,
@@ -36,32 +34,55 @@ const props = defineProps({
 <style scoped>
     .gantt-table {
         width: 100%;
-        overflow-x: auto;
-        border: solid 1px #ddd;
+        overflow-x: scroll;
         border-collapse: collapse;
+        border-radius: 1rem  0  0 0;
+       
     }
     .gantt-table table {
         width: 100%;
         border-collapse: collapse;
     }
     .gantt-table th, .gantt-table td {
-        border: 1px solid #ddd;
         padding: 8px;
         text-align: left;
     }
+
+    .gantt-table td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .gantt-table .name {
+        width: 50%;
+        min-width: 120px;
+    }
+    .gantt-table .stats {
+        width: 10%;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+    }
+
+    .gantt-table thead {
+        position: sticky;
+        box-shadow: #1a2935 2px 2px 5px;
+        z-index: 2;
+    }
     .gantt-table th {
-        background-color: #f2f2f2;
+        background-color: #09599c;
+        color: white;
         height: 70px;
     }
     .gantt-table tr:nth-child(even) {
         background-color: #f2f2f2;
     }
-
+    .gantt-table tr:nth-child(odd) {
+        z-index: 1;
+        background-color: white;
+    }
     .gantt-table td {
-        border-style: none solid;
-        border-width: 1px;
-        border-color: #ddd;
         height: 35px;
     }
-
 </style>

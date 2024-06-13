@@ -3,10 +3,10 @@
         <table>
             <thead>
                 <tr>
-                    <th v-for="month in monthInYears" :key="month"  :colspan="month[2]">{{ month[1] }}.{{month[0]}}</th>
+                    <th v-for="month in monthInYears" :key="month"  :colspan="month[2]" class="top-row">{{ month[1] }}.{{month[0]}}</th>
                 </tr>
                 <tr>
-                    <th v-for="day in daysInYears" :key="day">{{ day[2] }}</th>
+                    <th v-for="day in daysInYears" :key="day" class="bottom-row">{{ day[2] }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -21,11 +21,10 @@
             </tbody>
         </table>
     </div>
-
 </template>
 
 <script setup>
-import { computed, defineProps } from 'vue';
+import { computed } from 'vue';
 import { onMounted } from 'vue';
 
 const props = defineProps({
@@ -33,9 +32,11 @@ const props = defineProps({
     required: true
 })
 
+
 const today = new Date();
 const startDate =new Date( today.getFullYear()-1, 0, 2);
 const endDate = new Date(today.getFullYear()+2, 0, 0);
+let daysTotal = 0;
 
 const daysInYears = computed(() => {
     const days = [];
@@ -89,15 +90,38 @@ const getVacationClass = (vacations, day) => {
 };
 
 const centerToday = () => {
-    const daysTotal = daysInYears.value.length +24;
+    daysTotal = daysInYears.value.length ;
     const daysPassed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
     console.log(daysPassed);
     var diagram = document.querySelector('.gantt-diagram');
     diagram.scrollLeft = (daysPassed / daysTotal) * diagram.scrollWidth;
 };
 
+const goLeft = () => {
+    var diagram = document.querySelector('.gantt-diagram');
+    diagram.scrollTo({
+        left: diagram.scrollLeft - diagram.clientWidth / 2,
+        behavior: 'smooth'
+    });
+};
+
+const goRight = () => {
+    var diagram = document.querySelector('.gantt-diagram');
+    diagram.scrollTo({
+        left: diagram.scrollLeft + diagram.clientWidth / 2,
+        behavior: 'smooth'
+    });
+};
+
+
 onMounted(() => {
     centerToday();
+});
+
+defineExpose({
+  centerToday,
+  goLeft,
+  goRight,
 });
 </script>
 
@@ -105,27 +129,45 @@ onMounted(() => {
    .gantt-diagram {
         width: 100%;
         overflow-x: scroll;
-        border: solid 1px #ddd;
+        border-radius:  0 1rem 0 1rem ;
     }
     .gantt-diagram table {
         width: 100%;
         border-collapse: collapse;
     }
+    .gantt-diagram thead {
+        position: sticky;
+        height: 70px;
+        box-shadow: #1a2935 0px 2px 5px;
+        z-index: 2;
+    }
+/*     .gantt-diagram .bottom-row , .gantt-diagram .top-row:nth-child(even) {
+        border-style: solid solid none ;
+        border-width: 1px;
+        border-color: #ddd;
+        box-sizing: border-box;
+        
+    } */
+    .gantt-diagram .bottom-row:nth-child(even), .gantt-diagram .top-row:nth-child(even) {
+        background-color: #267ec7;
+    }
     .gantt-diagram th, .gantt-diagram td {
-        border: 1px solid #ddd;
         padding: 8px;
         text-align: left;
     }
     .gantt-diagram th {
-        background-color: #f2f2f2;
         text-align: center;
+        background-color: #09599c;
+        color: white;
     }
     .gantt-diagram td {
         position: relative;
-
     }
     .gantt-diagram tr:nth-child(even) {
         background-color: #f2f2f2;
+    }
+    .gantt-diagram tr:nth-child(odd) {
+        background-color: white;
     }
     .gantt-diagram .vacation-approved {
         background-color: #4CAF50;
@@ -139,12 +181,10 @@ onMounted(() => {
     .gantt-diagram .vacation-cancelled {
         background-color: #f44336;
     }
-    
     .gantt-diagram .cell {
-        border:none;
         height: 35px;
+        z-index: 1;
     }
-
     .gantt-diagram .cell div {
         width: 100%;
         height: 100%;
@@ -152,6 +192,5 @@ onMounted(() => {
         top: 0;
         left: 0;
     }
-
 </style>
 
