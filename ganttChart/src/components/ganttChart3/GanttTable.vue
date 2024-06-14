@@ -3,20 +3,20 @@
         <table>
             <thead>
                 <tr>
-                    <th class="name">Teammitglied</th>
-                    <th class="stats">Summe</th>
-                    <th class="stats">Genom-men</th>
-                    <th class="stats">Geplant</th>
-                    <th class="stats">Übrig</th>
+                    <th class="name-header">Teammitglied</th>
+                    <th class="stats-header">Summe</th>
+                    <th class="stats-header">Genom-men</th>
+                    <th class="stats-header">Geplant</th>
+                    <th class="stats-header">Übrig</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for = "employee in teamData" :key = "employee.name" class="cell">
-                    <td>{{employee.name}}</td>
-                    <td>{{employee.totalDays}}</td>
-                    <td>{{employee.takenDays}}</td>
-                    <td>{{employee.plannedDays}}</td>
-                    <td>{{employee.leftoverDays}}</td>
+                    <td class="name">{{employee.name}}</td>
+                    <td class="stats">{{employee.totalDays}}</td>
+                    <td class="stats">{{employee.takenDays}}</td>
+                    <td class="stats">{{employee.plannedDays}}</td>
+                    <td class="stats">{{employee.leftoverDays}}</td>
                 </tr>
             </tbody>
         </table>
@@ -37,7 +37,8 @@ const props = defineProps({
         overflow-x: scroll;
         border-collapse: collapse;
         border-radius: 1rem  0  0 0;
-       
+        border-style: none solid none none;
+        border-width: 1px;
     }
     .gantt-table table {
         width: 100%;
@@ -47,24 +48,28 @@ const props = defineProps({
         padding: 8px;
         text-align: left;
     }
-
     .gantt-table td {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
-    .gantt-table .name {
-        width: 50%;
+    .gantt-table .name
+    .gantt-table .name-header {
+        width: 100%;
         min-width: 120px;
+        max-width: 350px;
     }
-    .gantt-table .stats {
-        width: 10%;
+    .gantt-table .stats-header{
+        width: 3rem;
+        min-width: 2rem;
+        max-width: 4rem;
         writing-mode: vertical-rl;
         text-orientation: mixed;
         transform: rotate(180deg);
     }
-
+    .gantt-table .stats {
+        text-align: center;
+    }
     .gantt-table thead {
         position: sticky;
         box-shadow: #1a2935 2px 2px 5px;
@@ -84,5 +89,6 @@ const props = defineProps({
     }
     .gantt-table td {
         height: 35px;
+        max-width: 300px;
     }
 </style>

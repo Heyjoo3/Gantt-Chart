@@ -217,7 +217,7 @@ const teamData = ref([
         ]
       },
       {
-        name: 'I. Zimmermann-Ewers',
+        name: 'Alexander der Große Imperator der Griechen und König der Perser',
         totalDays: 30,
         takenDays: 10,
         plannedDays: 5,

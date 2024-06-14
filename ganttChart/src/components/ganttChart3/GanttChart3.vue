@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container">
     <div class="buttons-container">
-      <button @click="centerToday">Aktuell</button>
+      <button @click="centerToday">Heute</button>
       <button @click="goLeft">zurück</button>
       <button @click="goRight">vor</button>
     </div>
@@ -77,11 +77,11 @@ const goRight = () => {
 
 }
 .gantt-table-container {
-  width: 30%;
+  max-width: 30%;
   border-collapse: collapse;
 }
 .gantt-diagram-container {
-  width: 70%;
+  min-width: 70%;
   border-collapse: collapse;
 }
 </style>

@@ -3,17 +3,17 @@
         <table>
             <thead>
                 <tr>
-                    <th v-for="month in monthInYears" :key="month"  :colspan="month[2]" class="top-row">{{ month[1] }}.{{month[0]}}</th>
+                    <th v-for="month in monthInYears" :key="month.key"  :colspan="month.days" class="top-row">{{ month.label }}</th>
                 </tr>
                 <tr>
-                    <th v-for="day in daysInYears" :key="day" class="bottom-row">{{ day[2] }}</th>
+                    <th v-for="day in daysInYears" :key="day.key" class="bottom-row">{{ day.label }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="employee in teamData" :key="employee.name">
-                    <td v-for="day in daysInYears" :key="day" class="cell" >
-                        <div v-if="isVacationDay(employee.vacations, day)" 
-                             :class="getVacationClass(employee.vacations, day)">
+                    <td v-for="day in daysInYears" :key="day.key" class="cell" >
+                        <div v-if="isVacationDay(employee.vacations, day.date)" 
+                             :class="getVacationClass(employee.vacations, day.date)">
                             &nbsp;
                         </div>
                     </td>
@@ -24,77 +24,67 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { onMounted } from 'vue';
+import { computed, onMounted  } from 'vue';
 
 const props = defineProps({
     teamData: Array,
-    required: true
 })
 
-
 const today = new Date();
-const startDate =new Date( today.getFullYear()-1, 0, 2);
+const startDate =new Date( today.getFullYear()-1, 0, 1);
 const endDate = new Date(today.getFullYear()+2, 0, 0);
-let daysTotal = 0;
 
-const daysInYears = computed(() => {
+const getDaysInYears = (start, end) => {
     const days = [];
-    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-        let splitDate = date.toISOString().slice(0, 10).split('-');
-        days.push(splitDate);
+    for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+        days.push({
+            key: date.toISOString().slice(0, 10),
+            label: date.getDate(),
+            date: new Date(date)
+        });
     }
     return days;
-});
+};
 
-const monthInYears = computed(() => {
+const getMonthsInYears = (start, end) => {
     const months = [];
-    for (let date = new Date(startDate); date <= endDate; date.setMonth(date.getMonth() + 1)) {
-        let splitDate = date.toISOString().slice(0, 7).split('-');
-        let year = splitDate[0];
-        let month = splitDate[1];
-        const daysInMonth = (year, month) => new Date(year, month, 0).getDate();
-        splitDate.push(daysInMonth(year, month));
-        months.push(splitDate);
+    for (let date = new Date(start); date <= end; date.setMonth(date.getMonth() + 1)) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const daysInMonth = new Date(year, month, 0).getDate();
+        months.push({
+            key: `${year}-${month}`,
+            label: `${month}.${year}`,
+            days: daysInMonth
+        });
     }
     return months;
-});
+};
 
-// const getVacationClass = (vacation, day) => {
-//     const vacationStartDate = new Date(vacation.startDate);
-//     const vacationEndDate = new Date(vacation.endDate);
-//     const dayDate = new Date(day[0], day[1] - 1, day[2]);
-//     if (dayDate >= vacationStartDate && dayDate <= vacationEndDate) {
-//         return `vacation-${vacation.status}`;
-//     }
-//     return '';
-// };
+const daysInYears = computed(() => getDaysInYears(startDate, endDate));
+const monthInYears = computed(() => getMonthsInYears(startDate, endDate));
 
 const isVacationDay = (vacations, day) => {
-    const dayDate = new Date(day[0], day[1] - 1, day[2]);
     return vacations.some(vacation => {
         const vacationStartDate = new Date(vacation.startDate);
         const vacationEndDate = new Date(vacation.endDate);
-        return dayDate >= vacationStartDate && dayDate <= vacationEndDate;
+        return day >= vacationStartDate && day <= vacationEndDate;
     });
 };
 
 const getVacationClass = (vacations, day) => {
-    const dayDate = new Date(day[0], day[1] - 1, day[2]);
     const vacation = vacations.find(vacation => {
         const vacationStartDate = new Date(vacation.startDate);
         const vacationEndDate = new Date(vacation.endDate);
-        return dayDate >= vacationStartDate && dayDate <= vacationEndDate;
+        return day >= vacationStartDate && day <= vacationEndDate;
     });
     return vacation ? `vacation-${vacation.status}` : '';
 };
 
 const centerToday = () => {
-    daysTotal = daysInYears.value.length ;
-    const daysPassed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-    console.log(daysPassed);
-    var diagram = document.querySelector('.gantt-diagram');
-    diagram.scrollLeft = (daysPassed / daysTotal) * diagram.scrollWidth;
+    const daysPassed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) -1;
+    const diagram = document.querySelector('.gantt-diagram');
+    diagram.scrollLeft = (daysPassed / daysInYears.value.length) * diagram.scrollWidth;
 };
 
 const goLeft = () => {
@@ -112,7 +102,6 @@ const goRight = () => {
         behavior: 'smooth'
     });
 };
-
 
 onMounted(() => {
     centerToday();
@@ -141,19 +130,14 @@ defineExpose({
         box-shadow: #1a2935 0px 2px 5px;
         z-index: 2;
     }
-/*     .gantt-diagram .bottom-row , .gantt-diagram .top-row:nth-child(even) {
-        border-style: solid solid none ;
-        border-width: 1px;
-        border-color: #ddd;
-        box-sizing: border-box;
-        
-    } */
-    .gantt-diagram .bottom-row:nth-child(even), .gantt-diagram .top-row:nth-child(even) {
+    .gantt-diagram .bottom-row:nth-child(even), 
+    .gantt-diagram .top-row:nth-child(even) {
         background-color: #267ec7;
     }
     .gantt-diagram th, .gantt-diagram td {
         padding: 8px;
         text-align: left;
+        min-width: 2rem;
     }
     .gantt-diagram th {
         text-align: center;
